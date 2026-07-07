@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>안승민 포트폴리오</title>
+<style>
+  :root { --line:#111; --box:#d0d0d0; --muted:#555; }
+  * { box-sizing: border-box; }
+  html,body { margin:0; padding:0; background:#fff; color:#111; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
+                 "Malgun Gothic", sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 56px 20px 96px; }
+  h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .lead { color: var(--muted); margin: 0 0 32px; }
+  hr { border: 0; border-top: 1px solid var(--box); margin: 32px 0; }
+
+  .gate { border: 1px solid var(--line); padding: 24px; }
+  .gate h2 { font-size: 16px; margin: 0 0 6px; }
+  .gate p { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .gate-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  input[type=password] {
+    flex: 1 1 220px; padding: 10px 12px; border: 1px solid var(--line);
+    background:#fff; color:#111; font-size: 15px;
+  }
+  button {
+    padding: 10px 18px; border: 1px solid var(--line); background:#111; color:#fff;
+    font-size: 15px; cursor: pointer;
+  }
+  button:hover { background:#333; }
+  button.ghost { background:#fff; color:#111; }
+  button.ghost:hover { background:#f2f2f2; }
+  .msg { margin-top: 12px; font-size: 14px; color:#b00; min-height: 18px; }
+
+  #content { display: none; }
+  .proj { border: 1px solid var(--box); padding: 24px; margin: 20px 0; }
+  .proj h3 { font-size: 18px; margin: 0 0 2px; }
+  .proj .tag { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+  .proj h4 { font-size: 13.5px; margin: 16px 0 4px; text-transform: uppercase;
+             letter-spacing: 0.04em; color:#000; }
+  .proj p { margin: 0 0 4px; }
+  .proj .real { display:inline-block; margin-top:16px; font-size:12.5px;
+                border:1px solid var(--line); padding:2px 8px; }
+  .runbar { margin-top: 18px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .footnote { color: var(--muted); font-size: 13px; margin-top: 40px; }
+  a { color:#111; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>안녕하세요, 안승민 포트폴리오에 방문해주셔서 감사합니다</h1>
+  <p class="lead">
+    반도체 제조 현장에서 9년간 EHS 업무를 해오며, 현장에서 마주한 문제를
+    데이터와 AI 시스템으로 직접 풀어온 결과물을 모았습니다.
+    아래 항목은 비밀번호 입력 후 확인하실 수 있습니다.
+  </p>
+
+  <div class="gate" id="gate">
+    <h2>열람 비밀번호</h2>
+    <p>자기소개서에 안내된 비밀번호를 입력해 주세요.</p>
+    <div class="gate-row">
+      <input type="password" id="pw" placeholder="비밀번호" autocomplete="off" />
+      <button id="unlockBtn">확인</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="content">
+    <hr />
+    <div id="projects"></div>
+    <p class="footnote">
+      ※ 수치는 사내·공개데이터 기준 설계·구현 시점의 값입니다.
+      소방도면 검토 에이전트만 실제 동작 기능이며, 나머지는 개념·개발 과정·성과 소개입니다.
+    </p>
+  </div>
+
+</div>
+
+<script>
+  // ================================================================
+  // 백엔드 주소 — 배포한 Novile FastAPI 주소.
+  // 내용(4개 프로젝트)은 이 파일에 없고, 비번 통과 후 백엔드가 내려준다.
+  // ================================================================
+  var BACKEND_URL = window.PORTFOLIO_BACKEND || "https://novile.onrender.com";
+  var API = BACKEND_URL.replace(/\/+$/, "") + "/api/v1/portfolio";
+  var token = sessionStorage.getItem("pf_token") || null;
+
+  function logVisit(page, unlocked) {
+    try {
+      fetch(API + "/visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          page: page,
+          path: location.pathname + location.hash,
+          referrer: document.referrer || "",
+          unlocked: !!unlocked
+        })
+      }).catch(function(){});
+    } catch (e) {}
+  }
+
+  function escapeHtml(s){ return (s||"").replace(/[&<>]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+
+  function renderProjects(projects) {
+    var host = document.getElementById("projects");
+    host.innerHTML = "";
+    projects.forEach(function(p){
+      var el = document.createElement("div");
+      el.className = "proj";
+      var real = p.real
+        ? '<div class="runbar"><span class="real">실제 동작 기능</span>' +
+          '<button class="ghost" data-run="' + escapeHtml(p.id) + '">도면 검토 실행하기</button>' +
+          '</div><div class="msg" data-msg="' + escapeHtml(p.id) + '"></div>'
+        : '';
+      el.innerHTML =
+        '<h3>' + escapeHtml(p.title) + '</h3>' +
+        '<p class="tag">' + escapeHtml(p.tag) + '</p>' +
+        p.html + real;
+      host.appendChild(el);
+    });
+    // 소방 실행 버튼 (다음 단계에서 도면검토 API 연결)
+    host.querySelectorAll("[data-run]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        logVisit("firecheck", true);
+        var m = host.querySelector('[data-msg="' + btn.getAttribute("data-run") + '"]');
+        if (m){ m.style.color = "#555";
+          m.textContent = "도면 검토 기능은 다음 배포 단계에서 이 자리(백엔드 API)에 연결됩니다."; }
+      });
+    });
+  }
+
+  function loadContent(tk) {
+    return fetch(API + "/content", { headers: { "Authorization": "Bearer " + tk } })
+      .then(function(r){
+        if (r.status === 401 || r.status === 403) { throw new Error("expired"); }
+        return r.json();
+      })
+      .then(function(j){
+        var projects = j && j.data && j.data.projects;
+        if (!projects) throw new Error("no content");
+        renderProjects(projects);
+        document.getElementById("gate").style.display = "none";
+        document.getElementById("content").style.display = "block";
+        logVisit("home", true);
+      });
+  }
+
+  // 홈 방문 기록
+  logVisit("home", false);
+
+  var msg = document.getElementById("msg");
+  var pw = document.getElementById("pw");
+  var btn = document.getElementById("unlockBtn");
+
+  // 이미 이번 세션에서 통과했으면 바로 내용 로드 (만료면 다시 게이트)
+  if (token) {
+    loadContent(token).catch(function(){
+      sessionStorage.removeItem("pf_token"); token = null;
+    });
+  }
+
+  function doUnlock() {
+    var val = pw.value.trim();
+    if (!val) { msg.textContent = "비밀번호를 입력해 주세요."; return; }
+    msg.style.color = "#555"; msg.textContent = "확인 중...";
+    fetch(API + "/unlock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: val })
+    })
+    .then(function(r){ return r.json().then(function(j){ return { ok:r.ok, j:j }; }); })
+    .then(function(res){
+      var data = res.j && res.j.data;
+      if (res.ok && data && data.ok) {
+        token = data.token;
+        sessionStorage.setItem("pf_token", token);
+        msg.textContent = "";
+        return loadContent(token);
+      } else {
+        msg.style.color = "#b00";
+        msg.textContent = (res.j && res.j.message) || "비밀번호가 일치하지 않습니다.";
+      }
+    })
+    .catch(function(){
+      msg.style.color = "#b00";
+      msg.textContent = "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+    });
+  }
+
+  btn.addEventListener("click", doUnlock);
+  pw.addEventListener("keydown", function(e){ if (e.key === "Enter") doUnlock(); });
+</script>
+</body>
+</html>
