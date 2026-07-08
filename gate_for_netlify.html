@@ -46,6 +46,12 @@
   .proj .real { display:inline-block; margin-top:16px; font-size:12.5px;
                 border:1px solid var(--line); padding:2px 8px; }
   .runbar { margin-top: 18px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  a.try-btn {
+    display:inline-block; padding:10px 22px; border:1px solid var(--line);
+    background:#111; color:#fff; font-size:14.5px; font-weight:600;
+    text-decoration:none; letter-spacing:-0.005em;
+  }
+  a.try-btn:hover { background:#333; }
   .footnote { color: var(--muted); font-size: 13px; margin-top: 40px; }
   a { color:#111; }
 </style>
@@ -116,8 +122,9 @@
       el.className = "proj";
       var real = p.real
         ? '<div class="runbar"><span class="real">실제 동작 기능</span>' +
-          '<button class="ghost" data-run="' + escapeHtml(p.id) + '">도면 검토 실행하기</button>' +
-          '</div><div class="msg" data-msg="' + escapeHtml(p.id) + '"></div>'
+          '<a class="try-btn" href="https://seungminportfolio.netlify.app/" ' +
+          'target="_blank" rel="noopener" data-try="' + escapeHtml(p.id) + '">사용 체험 해보기</a>' +
+          '</div>'
         : '';
       el.innerHTML =
         '<h3>' + escapeHtml(p.title) + '</h3>' +
@@ -125,14 +132,9 @@
         p.html + real;
       host.appendChild(el);
     });
-    // 소방 실행 버튼 (다음 단계에서 도면검토 API 연결)
-    host.querySelectorAll("[data-run]").forEach(function(btn){
-      btn.addEventListener("click", function(){
-        logVisit("firecheck", true);
-        var m = host.querySelector('[data-msg="' + btn.getAttribute("data-run") + '"]');
-        if (m){ m.style.color = "#555";
-          m.textContent = "도면 검토 기능은 다음 배포 단계에서 이 자리(백엔드 API)에 연결됩니다."; }
-      });
+    // 소방도면 검토 에이전트 — "사용 체험 해보기" 클릭 시 방문 기록
+    host.querySelectorAll("[data-try]").forEach(function(a){
+      a.addEventListener("click", function(){ logVisit("firecheck", true); });
     });
   }
 
@@ -198,4 +200,5 @@
   pw.addEventListener("keydown", function(e){ if (e.key === "Enter") doUnlock(); });
 </script>
 </body>
+</html>
 </html>
