@@ -1,0 +1,79 @@
+/* ============================================================
+   안승민 · EHS × AI 포트폴리오
+   뉴모피즘 soft-UI · 인디고(#3F51B5) 포인트
+   ============================================================ */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #ECEEF2; }
+body {
+  font-family: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont,
+               'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+a:hover { color: #3F51B5; }
+a[data-goto] { cursor: pointer; }
+
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- SPA 페이지 전환 (app.js 가 .active 토글) ---- */
+.page { display: none; }
+.page.active { display: block; animation: floatUp 0.5s ease; }
+
+/* ---- 프로젝트 카드 hover (인라인 style 을 !important 로 덮음) ---- */
+.proj-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.proj-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -26px rgba(63,81,181,0.55),
+              inset 0 1px 0 rgba(255,255,255,0.9) !important;
+}
+
+/* ============================================================
+   반응형 — 원본은 데스크톱(고정 그리드) 기준이라,
+   좁은 화면에서 인라인 그리드를 1열/2열로 접어준다.
+   ============================================================ */
+@media (max-width: 860px) {
+  /* 프로젝트 카드: 아이콘·본문·미디어 세로 스택 */
+  [style*="grid-template-columns: 60px 1fr 520px"],
+  [style*="grid-template-columns: 60px 340px 1fr"],
+  [style*="grid-template-columns: 1fr 360px"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* 3열 → 1열, 4열(타임라인) → 1열 */
+  [style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* 타임라인: 세로 스택 시 세로 구분선·측면 패딩 제거 */
+  [style*="grid-template-columns: 1fr 1fr 1fr 1fr"] > div {
+    border-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 6px !important;
+  }
+  /* 5열(파이프라인·매트릭스) → 2열 */
+  [style*="grid-template-columns: repeat(5, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* 2열(핵심기능·퍼블릭DB) → 1열 */
+  [style*="grid-template-columns: 1fr 1fr;"],
+  [style*="grid-template-columns: 1fr 1fr "] {
+    grid-template-columns: 1fr !important;
+  }
+  /* 대형 헤드라인 축소 */
+  [style*="font-size: 78px"] { font-size: 46px !important; }
+  [style*="font-size: 58px"] { font-size: 40px !important; }
+}
+
+@media (max-width: 560px) {
+  [style*="grid-template-columns: repeat(5, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+  [style*="font-size: 78px"] { font-size: 38px !important; }
+  [style*="font-size: 58px"] { font-size: 32px !important; }
+  [style*="font-size: 30px"] { font-size: 24px !important; }
+  /* 좌우 여백 축소 */
+  [style*="padding: 22px 28px 80px"] { padding-left: 16px !important; padding-right: 16px !important; }
+}
