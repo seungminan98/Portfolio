@@ -3,10 +3,19 @@
    뉴모피즘 soft-UI · 인디고(#3F51B5) 포인트
    ============================================================ */
 
+/* Pretendard Variable — self-host (한 파일로 45~920 전 굵기 커버) */
+@font-face {
+  font-family: "Pretendard Variable";
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url("assets/fonts/PretendardVariable.woff2") format("woff2-variations");
+}
+
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: #ECEEF2; }
 body {
-  font-family: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont,
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
                'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
